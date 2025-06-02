@@ -1,0 +1,123 @@
+import tkinter as tk
+from tkinter import messagebox
+
+questions = [
+    {"question": "What is the capital of France?", "options": ["Berlin", "Madrid", "Paris", "Rome"], "answer": 2},
+    {"question": "Which planet is known as the Red Planet?", "options": ["Earth", "Mars", "Jupiter", "Saturn"], "answer": 1},
+    {"question": "Who wrote 'Harry Potter'?", "options": ["Tolkien", "Lewis", "Roald Dahl", "J.K. Rowling"], "answer": 3},
+    {"question": "What is the largest mammal?", "options": ["Elephant", "Blue Whale", "Giraffe", "Hippo"], "answer": 1},
+    {"question": "What is 5 x 6?", "options": ["11", "30", "56", "20"], "answer": 1},
+    {"question": "What is the capital of Japan?", "options": ["Seoul", "Beijing", "Tokyo", "Bangkok"], "answer": 2},
+    {"question": "Which gas do plants use for photosynthesis?", "options": ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"], "answer": 1},
+    {"question": "How many legs does a spider have?", "options": ["6", "8", "10", "12"], "answer": 1},
+    {"question": "Who painted the Mona Lisa?", "options": ["Vincent van Gogh", "Leonardo da Vinci", "Michelangelo", "Pablo Picasso"], "answer": 1},
+    {"question": "Which is the largest ocean on Earth?", "options": ["Atlantic", "Arctic", "Indian", "Pacific"], "answer": 3},
+    {"question": "What is the boiling point of water?", "options": ["90°C", "100°C", "110°C", "80°C"], "answer": 1},
+    {"question": "Which planet is closest to the sun?", "options": ["Venus", "Earth", "Mercury", "Mars"], "answer": 2},
+    {"question": "Which language has the most native speakers?", "options": ["English", "Mandarin", "Hindi", "Spanish"], "answer": 1},
+    {"question": "What is the main ingredient in guacamole?", "options": ["Tomato", "Avocado", "Lettuce", "Spinach"], "answer": 1},
+    {"question": "Who was the first President of the United States?", "options": ["George Washington", "Thomas Jefferson", "Abraham Lincoln", "John Adams"], "answer": 0},
+    {"question": "How many continents are there?", "options": ["5", "6", "7", "8"], "answer": 2},
+    {"question": "Which animal is known as the King of the Jungle?", "options": ["Tiger", "Elephant", "Lion", "Bear"], "answer": 2},
+    {"question": "Which planet has a giant red spot?", "options": ["Saturn", "Neptune", "Jupiter", "Uranus"], "answer": 2},
+    {"question": "What color do you get by mixing red and white?", "options": ["Pink", "Orange", "Purple", "Brown"], "answer": 0},
+    {"question": "How many hours are in 3 days?", "options": ["24", "36", "48", "72"], "answer": 3}
+]
+
+class TriviaApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Trivia Challenge")
+        self.root.configure(bg="lightblue")
+
+        self.q_index = 0
+        self.score = 0
+
+        self.question_label = tk.Label(root, text="", font=("Arial", 16), wraplength=400, bg="lightblue")
+        self.question_label.pack(pady=20)
+
+        self.selected_option = tk.IntVar()
+
+        self.radio_buttons = []
+        for i in range(4):
+            rb = tk.Radiobutton(
+                root,
+                text="",
+                variable=self.selected_option,
+                value=i,
+                font=("Arial", 14),
+                bg="lightblue",
+                activebackground="lightblue",
+                selectcolor="lightblue",
+                anchor='w'
+            )
+            rb.pack(anchor='w', padx=50)
+            self.radio_buttons.append(rb)
+
+        self.submit_btn = tk.Button(
+            root,
+            text="Submit",
+            command=self.submit_answer,
+            font=("Helvetica", 16, "bold"),
+            bg="#4CAF50",
+            fg="white",
+            activebackground="#45a049",
+            padx=20,
+            pady=10,
+            bd=4,
+            relief="raised",
+            cursor="hand2"
+        )
+        self.submit_btn.pack(pady=20)
+
+        self.submit_btn.bind("<Enter>", self.on_enter)
+        self.submit_btn.bind("<Leave>", self.on_leave)
+
+        self.feedback_label = tk.Label(root, text="", font=("Arial", 12), fg="green", bg="lightblue")
+        self.feedback_label.pack()
+
+        self.load_question()
+
+    def on_enter(self, event):
+        self.submit_btn.config(bg="#45a049")
+
+    def on_leave(self, event):
+        self.submit_btn.config(bg="#4CAF50")
+
+    def load_question(self):
+        q = questions[self.q_index]
+        self.question_label.config(text=f"Q{self.q_index + 1}: {q['question']}")
+        self.selected_option.set(-1)
+        self.feedback_label.config(text="")
+        for i, option in enumerate(q["options"]):
+            self.radio_buttons[i].config(text=option)
+
+    def submit_answer(self):
+        selected = self.selected_option.get()
+        if selected == -1:
+            messagebox.showwarning("No selection", "Please select an option.")
+            return
+
+        correct = questions[self.q_index]["answer"]
+        if selected == correct:
+            self.score += 1
+            self.feedback_label.config(text="Correct!", fg="green")
+        else:
+            correct_text = questions[self.q_index]["options"][correct]
+            self.feedback_label.config(text=f"Wrong! Correct: {correct_text}", fg="red")
+
+        self.q_index += 1
+        if self.q_index < len(questions):
+            self.root.after(1000, self.load_question)
+        else:
+            self.root.after(1000, self.show_result)
+
+    def show_result(self):
+        messagebox.showinfo("Quiz Over", f"Your final score is {self.score}/{len(questions)}")
+        self.root.destroy()
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.configure(bg="lightblue")
+    app = TriviaApp(root)
+    root.mainloop()
